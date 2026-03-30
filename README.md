@@ -2,7 +2,7 @@
 title: Estimateur Immobilier Saone-et-Loire
 sdk: gradio
 sdk_version: 4.44.0
-python_version: 3.10
+python_version: 3.12
 app_file: interface.py
 fullWidth: true
 ---
