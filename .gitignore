@@ -1,5 +1,6 @@
 .venv/
 __pycache__/
 .gradio/
+.hf_model_cache/
 .ipynb_checkpoints/
 *.pyc
