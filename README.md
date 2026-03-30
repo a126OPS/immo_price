@@ -1,93 +1,46 @@
----
-title: Estimateur Immobilier Saone-et-Loire
-sdk: gradio
-sdk_version: 4.44.0
-python_version: 3.12
-app_file: interface.py
-fullWidth: true
----
+# 🏠 Prédiction Prix Immobilier — Saône-et-Loire
 
-# Estimateur Immobilier Saone-et-Loire
+## Description
 
-Application Gradio de prediction immobiliere pour les biens en Saone-et-Loire.
+Ce modèle prédit le **prix de vente d'un bien immobilier en Saône-et-Loire (71)** à partir de ses caractéristiques. Il a été développé à partir de données de transactions locales et constitue un outil d'aide à l'estimation pour ce département de Bourgogne-Franche-Comté.
 
-Le Space charge les pipelines de regression et de scoring sauvegardes dans ce depot.
+## Utilisation
 
-## Organisation Hugging Face
+```python
+import joblib
+import numpy as np
+from huggingface_hub import hf_hub_download
 
-- Repo modeles : `a126OPS/prediction_immo_soane_et_loire`
-- Space API + Gradio : `a126OPS/prediction_immo_soane_et_loirePS`
+# Chargement du modèle
+model_path = hf_hub_download(repo_id="a126OPS/prediction_immo_soane_et_loire", filename="model.joblib")
+model = joblib.load(model_path)
 
-Le chargement des modeles utilise par defaut le repo Hugging Face `a126OPS/prediction_immo_soane_et_loire`.
-Si les fichiers sont presents localement, tu peux forcer l'usage local avec :
-
-```bash
-IMMO_PREFER_LOCAL_ARTIFACTS=1
+# Exemple de prédiction
+# [surface_m2, nb_pieces, code_postal, type_bien]
+features = np.array([[85, 4, 71000, 1]])
+predicted_price = model.predict(features)
+print(f"Prix estimé : {predicted_price[0]:.0f} €")
 ```
 
-Tu peux aussi changer le repo modele avec :
+## Données d'entraînement
 
-```bash
-HF_MODEL_REPO_ID=a126OPS/prediction_immo_soane_et_loire
-```
+- **Source :** Données de valeurs foncières (DVF) — open data gouvernemental
+- **Zone géographique :** Département de la Saône-et-Loire (71)
+- **Variables d'entrée :** surface habitable, nombre de pièces, localisation (commune / code postal), type de bien (maison / appartement)
+- **Variable cible :** prix de vente en euros
 
-## API pour portfolio
 
-Le projet expose maintenant deux modes d'integration :
+## Limites
 
-- `interface.py` : interface Gradio pour tester le modele manuellement
-- `api.py` : API REST + interface Gradio montee sur `/gradio`
+- Le modèle est spécifique à la Saône-et-Loire et ne doit pas être utilisé sur d'autres départements
+- Les biens atypiques (châteaux, propriétés agricoles) sont moins bien estimés
+- Les évolutions récentes du marché local ne sont pas forcément reflétées
 
-### Lancer l'API localement
+## Auteur
 
-```bash
-python api.py
-```
+Développé par [a126OPS](https://huggingface.co/a126OPS)  
+🔗 Démo interactive : [prediction_immo_soane_et_loirePS](https://huggingface.co/spaces/a126OPS/prediction_immo_soane_et_loirePS)
 
-Endpoints principaux :
+## Licence
 
-- `GET /api/health`
-- `POST /api/predict`
-- `GET /gradio`
-
-### API Gradio du Space
-
-Si tu deploies sur le Space Gradio, le portfolio peut aussi appeler directement l'endpoint Gradio
-`/predict_property` via `@gradio/client`, sans passer par `api.py`.
-
-### Exemple de payload JSON
-
-```json
-{
-  "type_bien": "Appartement",
-  "commune": "Autun",
-  "surface_bati": 65,
-  "nb_pieces": 3,
-  "surface_terrain": 0,
-  "mois": 6,
-  "annee": 2024,
-  "prix_affiche": 75000
-}
-```
-
-### Exemple JavaScript pour un portfolio
-
-```js
-const response = await fetch("http://127.0.0.1:7860/api/predict", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    type_bien: "Appartement",
-    commune: "Autun",
-    surface_bati: 65,
-    nb_pieces: 3,
-    surface_terrain: 0,
-    mois: 6,
-    annee: 2024,
-    prix_affiche: 75000
-  })
-});
-
-const result = await response.json();
-console.log(result);
-```
+[MIT](https://opensource.org/licenses/MIT)
